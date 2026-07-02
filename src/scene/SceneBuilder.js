@@ -50,12 +50,12 @@ export default class SceneBuilder {
     return entity;
   }
 
-  addInteractable(entity, range, priority, prompt, onInteract) {
+  addInteractable(entity, range, priority, prompt, onInteract, canInteract = () => true) {
     entity.getInteractionPosition = () => entity.getPosition();
     entity.getInteractionRange = () => range;
     entity.getInteractionPriority = () => priority;
     entity.getPrompt = () => prompt;
-    entity.canInteract = () => true;
+    entity.canInteract = canInteract;
     entity.interact = onInteract;
     this.interactables.push(entity);
     return entity;
@@ -106,12 +106,19 @@ export default class SceneBuilder {
 
     const item = this.createBox('PickupBox', { x: 0.7, y: 0.7, z: 0.7 }, { x: 2, y: 0.35, z: -2 }, new pc.Color(0.94, 0.55, 0.2), false);
     item._carried = false;
-    this.addInteractable(item, 1.5, 10, 'Pick up box', (playerController) => {
-      if (!item._carried) {
-        item._carried = true;
-        playerController.carry.pickup(item);
-      }
-    });
+    this.addInteractable(
+      item,
+      1.5,
+      10,
+      'Pick up box',
+      (playerController) => {
+        if (!item._carried) {
+          item._carried = true;
+          playerController.carry.pickup(item);
+        }
+      },
+      () => !item._carried
+    );
     this.pickupItem = item;
 
     const interactionSpot = this.createSphere('InteractionSpot', { x: 0.35, y: 0.35, z: 0.35 }, { x: -5, y: 0.35, z: 3 }, new pc.Color(0.35, 0.9, 0.45), false);
