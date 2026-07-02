@@ -68,6 +68,14 @@ export default class Engine {
 
     this.scene.build();
 
+    for (const collider of this.scene.staticBodies) {
+      this.physics.register(collider.entity, collider.size, false);
+    }
+
+    for (const target of this.scene.interactables) {
+      this.interactions.register(target);
+    }
+
     this.player.spawn(this.scene.playerSpawn);
     this.camera.attach(this.scene.cameraAnchor, this.player);
     this.npc.spawn(this.scene.npcSpawn);
@@ -80,6 +88,8 @@ export default class Engine {
       this.npc.restore(saved.npc);
       this.carry.restore(saved.carry, this.scene);
     }
+
+    this.events.on('game:save-request', () => this.save.save());
 
     this.time.begin(performance.now());
   }
@@ -94,13 +104,12 @@ export default class Engine {
 
   fixedTick(timestamp) {
     if (!this.running) return;
-    const dt = this.time.step(timestamp);
+    this.time.step(timestamp);
     let fixed;
     while ((fixed = this.time.consumeFixedStep())) {
       this.input.update(fixed);
       this.player.update(fixed, this.input.state);
       this.npc.update(fixed);
-      this.physics.update(fixed);
       this.interactions.update(fixed, this.player);
       this.carry.update(fixed, this.player);
       this.camera.update(fixed, this.player);
