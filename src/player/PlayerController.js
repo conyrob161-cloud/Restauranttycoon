@@ -15,6 +15,7 @@ export default class PlayerController {
 
   spawn(entity) {
     this.entity = entity;
+    this.entity.carry = this.carry;
     this.motor.setPosition(entity.getPosition());
     this.interactions.registerPlayer(this);
     this.carry.registerPlayer(this);
