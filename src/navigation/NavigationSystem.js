@@ -12,4 +12,12 @@ export default class NavigationSystem {
   registerNPC(npc) {
     this.npcs.push(npc);
   }
+
+  update() {
+    for (const npc of this.npcs) {
+      if (typeof npc.updateNavigation === 'function') {
+        npc.updateNavigation(0, this.pathfinder);
+      }
+    }
+  }
 }
